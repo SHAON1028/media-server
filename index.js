@@ -10,25 +10,23 @@ require("dotenv").config();
 app.use(cors())
 app.use(express.json())
 //MongoDb
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.cvl7r98.mongodb.net/?retryWrites=true&w=majority`;
 
-const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverApi: ServerApiVersion.v1,
-});
 
-//MongoFunction
-const run = async()=>{
-    try{
-       
-    }
-
-    finally{
-
-    }
+const uri = "mongodb+srv://social-media:eMay9QssYQdPc8HQ@cluster0.cvl7r98.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+async function run() {
+  try {
+   const postsCollection = client.db('Social-app').collection('posts')
+   app.post("/posts",async(req,res)=>{
+    const post = req.body
+    const result = await postsCollection.insertOne(post)
+    res.send(result)
+   })
+  } finally {
+   
+  }
 }
-run().catch(err=>console.log(err))
+run().catch(console.dir);
 
 //MongoDb
 app.get('/',(req,res)=>{
