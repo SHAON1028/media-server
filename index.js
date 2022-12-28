@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
 require('colors')
 require("dotenv").config();
@@ -17,11 +17,42 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
   try {
    const postsCollection = client.db('Social-app').collection('posts')
+
+
    app.post("/posts",async(req,res)=>{
     const post = req.body
     const result = await postsCollection.insertOne(post)
     res.send(result)
+
+
+    
    })
+   app.get('/posts',async (req,res)=>{
+    const query = {}
+    const posts = await postsCollection.find(query).sort({totalLikes:-1}).limit(3).toArray()
+    res.send(posts)
+}) 
+   app.get('/allposts',async (req,res)=>{
+    const query = {}
+    const posts = await postsCollection.find(query).sort({_id:-1}).toArray()
+    res.send(posts)
+}) 
+   app.put('/allposts/:id',async (req,res)=>{
+    const id = req.params.id
+    console.log(id)
+    const  updateLike = parseInt(req.body.totalLikes )
+    console.log(updateLike)
+    const filter = { _id:ObjectId(id) };
+    const options = { upsert: true };
+    const updateDoc = {
+      $set: {
+        totalLikes: updateLike
+      },
+    };
+    const posts = await postsCollection.updateOne(filter, updateDoc, options)
+    res.send(posts)
+}) 
+  //  ends
   } finally {
    
   }
