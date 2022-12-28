@@ -17,6 +17,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
   try {
    const postsCollection = client.db('Social-app').collection('posts')
+   const commentsCollection = client.db('Social-app').collection('comments')
 
 
    app.post("/posts",async(req,res)=>{
@@ -52,6 +53,12 @@ async function run() {
     const posts = await postsCollection.updateOne(filter, updateDoc, options)
     res.send(posts)
 }) 
+
+app.post('/allcomments', async (req, res)=>{
+  const comment = req.body
+  const result = await commentsCollection.insertOne(comment)
+  res.send(result)
+})
   //  ends
   } finally {
    
