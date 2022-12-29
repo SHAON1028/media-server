@@ -38,12 +38,18 @@ async function run() {
     const posts = await postsCollection.find(query).sort({_id:-1}).toArray()
     res.send(posts)
 }) 
+   app.get('/allposts/:id',async (req,res)=>{
+    const id = req.params.id
+    const query = {_id:ObjectId(id)}
+    const posts = await postsCollection.find(query).toArray()
+    res.send(posts)
+}) 
    app.put('/allposts/:id',async (req,res)=>{
     const id = req.params.id
     console.log(id)
     const  updateLike = parseInt(req.body.totalLikes )
-    console.log(updateLike)
-    const filter = { _id:ObjectId(id) };
+    console.log(updateLike) 
+    const filter = { _id:ObjectId(id)};
     const options = { upsert: true };
     const updateDoc = {
       $set: {
@@ -59,7 +65,13 @@ app.post('/allcomments', async (req, res)=>{
   const result = await commentsCollection.insertOne(comment)
   res.send(result)
 })
-  //  ends
+app.get('/comments/:id', async (req, res)=>{
+  const id = req.params.id
+   const filter = { postId:id};
+  const result = await commentsCollection.find(filter).toArray()
+  res.send(result)
+})
+//  ends
   } finally {
    
   }
