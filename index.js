@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const e = require('express');
 const port = process.env.PORT || 5000
 require('colors')
 require("dotenv").config();
@@ -18,16 +19,14 @@ async function run() {
   try {
    const postsCollection = client.db('Social-app').collection('posts')
    const commentsCollection = client.db('Social-app').collection('comments')
+   const profileCollection = client.db('Social-app').collection('profile')
 
 
    app.post("/posts",async(req,res)=>{
     const post = req.body
     const result = await postsCollection.insertOne(post)
     res.send(result)
-
-
-    
-   })
+ })
    app.get('/posts',async (req,res)=>{
     const query = {}
     const posts = await postsCollection.find(query).sort({totalLikes:-1}).limit(3).toArray()
@@ -36,13 +35,19 @@ async function run() {
    app.get('/allposts',async (req,res)=>{
     const query = {}
     const posts = await postsCollection.find(query).sort({_id:-1}).toArray()
-    res.send(posts)
+    res.send(posts) 
 }) 
    app.get('/allposts/:id',async (req,res)=>{
     const id = req.params.id
     const query = {_id:ObjectId(id)}
     const posts = await postsCollection.find(query).toArray()
     res.send(posts)
+}) 
+   app.get('/profile/:email',async (req,res)=>{
+    const email = req.params.email
+    const query = {email:email}
+    const data = await profileCollection.findOne(query)
+    res.send(data)
 }) 
    app.put('/allposts/:id',async (req,res)=>{
     const id = req.params.id
@@ -57,6 +62,19 @@ async function run() {
       },
     };
     const posts = await postsCollection.updateOne(filter, updateDoc, options)
+    res.send(posts)
+}) 
+   app.put('/profile/:email',async (req,res)=>{
+    const email = req.params.email
+    console.log(email)
+  
+   
+    const filter = { email:email};
+    const options = { upsert: true };
+    const updateDoc = {
+       $set: req.body 
+    }
+    const posts = await profileCollection.updateOne(filter, updateDoc, options)
     res.send(posts)
 }) 
 
